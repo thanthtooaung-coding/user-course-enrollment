@@ -1,5 +1,7 @@
 package com.userenrollment.courseservice.service;
 
+import com.userenrollment.courseservice.model.Course;
+import com.userenrollment.courseservice.repository.CourseRepository;
 import com.userenrollment.courseservice.request.CourseRequest;
 import com.userenrollment.courseservice.event.CourseCreatedEvent;
 import org.slf4j.Logger;
@@ -22,19 +24,27 @@ public class CourseService {
     private String routingKey;
 
     private final RabbitTemplate rabbitTemplate;
+    private final CourseRepository courseRepository;
 
-    public CourseService(RabbitTemplate rabbitTemplate) {
+    public CourseService(RabbitTemplate rabbitTemplate, CourseRepository courseRepository) {
         this.rabbitTemplate = rabbitTemplate;
+        this.courseRepository = courseRepository;
     }
 
     public void createCourse(CourseRequest request) {
-        log.info("Saving course to database... (simulated)");
-        
+        Course course = new Course();
+        course.setTitle(request.title());
+        course.setInstructor(request.instructor());
+        course.setPrice(request.price());
+
+        Course savedCourse = courseRepository.save(course);
+        log.info("Saved course to database with ID: {}", savedCourse.getId());
+
         CourseCreatedEvent event = new CourseCreatedEvent(
-                UUID.randomUUID().toString(),
-                request.title(),
-                request.instructor(),
-                request.price(),
+                savedCourse.getId().toString(),
+                savedCourse.getTitle(),
+                savedCourse.getInstructor(),
+                savedCourse.getPrice(),
                 Instant.now()
         );
 
