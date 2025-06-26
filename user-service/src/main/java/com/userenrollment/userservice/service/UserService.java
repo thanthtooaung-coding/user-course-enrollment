@@ -1,5 +1,7 @@
 package com.userenrollment.userservice.service;
 
+import com.userenrollment.userservice.model.User;
+import com.userenrollment.userservice.repository.UserRepository;
 import com.userenrollment.userservice.request.UserRequest;
 import com.userenrollment.userservice.event.UserRegisteredEvent;
 import org.slf4j.Logger;
@@ -8,7 +10,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -22,18 +23,26 @@ public class UserService {
     private String routingKey;
 
     private final RabbitTemplate rabbitTemplate;
+    private final UserRepository userRepository;
 
-    public UserService(RabbitTemplate rabbitTemplate) {
+    public UserService(RabbitTemplate rabbitTemplate, UserRepository userRepository) {
         this.rabbitTemplate = rabbitTemplate;
+        this.userRepository = userRepository;
     }
 
     public void registerUser(UserRequest request) {
-        log.info("Saving user to database... (simulated)");
+        final User user = new User();
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        user.setPassword(request.password());
+
+        final User savedUser = userRepository.save(user);
+        log.info("Saved user to database with ID: {}", savedUser.getId());
 
         UserRegisteredEvent event = new UserRegisteredEvent(
-                UUID.randomUUID().toString(),
-                request.username(),
-                request.email(),
+                savedUser.getId().toString(),
+                savedUser.getUsername(),
+                savedUser.getEmail(),
                 Instant.now()
         );
 
