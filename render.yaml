@@ -3,7 +3,7 @@ services:
     name: learning-db
     env: postgres
     plan: free
-    initial_db:
+    databases:
       name: learning_platform
 
   # 2. Infrastructure: Redis for Messaging
