@@ -7,7 +7,7 @@ services:
   # 1. Infrastructure: Redis for Messaging (as a Private Service)
   - type: pserv
     name: messaging-redis
-    env: redis
+    runtime: redis
     plan: free
 
   # 2. Microservice: Discovery Service (Eureka)
