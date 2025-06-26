@@ -22,7 +22,7 @@
     </properties>
 
     <modules>
-
+        <module>discovery-service</module>
     </modules>
 
     <dependencyManagement>
