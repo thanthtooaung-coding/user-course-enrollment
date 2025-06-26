@@ -1,5 +1,7 @@
 package com.userenrollment.enrollmentservice.service;
 
+import com.userenrollment.enrollmentservice.model.Enrollment;
+import com.userenrollment.enrollmentservice.repository.EnrollmentRepository;
 import com.userenrollment.enrollmentservice.request.EnrollmentRequest;
 import com.userenrollment.enrollmentservice.event.UserEnrolledEvent;
 import org.slf4j.Logger;
@@ -22,18 +24,26 @@ public class EnrollmentService {
     private String routingKey;
 
     private final RabbitTemplate rabbitTemplate;
+    private final EnrollmentRepository enrollmentRepository;
 
-    public EnrollmentService(RabbitTemplate rabbitTemplate) {
+    public EnrollmentService(RabbitTemplate rabbitTemplate, EnrollmentRepository enrollmentRepository) {
         this.rabbitTemplate = rabbitTemplate;
+        this.enrollmentRepository = enrollmentRepository;
     }
 
     public void enrollUser(EnrollmentRequest request) {
-        log.info("Saving enrollment to database... (simulated)");
-        
+        Enrollment enrollment = new Enrollment();
+        enrollment.setUserId(UUID.fromString(request.userId()));
+        enrollment.setCourseId(UUID.fromString(request.courseId()));
+        enrollment.setEnrollmentDate(Instant.now());
+
+        Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
+        log.info("Saved enrollment to database with ID: {}", savedEnrollment.getId());
+
         UserEnrolledEvent event = new UserEnrolledEvent(
-                UUID.randomUUID().toString(),
-                request.userId(),
-                request.courseId(),
+                savedEnrollment.getId().toString(),
+                savedEnrollment.getUserId().toString(),
+                savedEnrollment.getCourseId().toString(),
                 Instant.now()
         );
 
