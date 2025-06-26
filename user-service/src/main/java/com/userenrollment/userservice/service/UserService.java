@@ -6,7 +6,8 @@ import com.userenrollment.userservice.request.UserRequest;
 import com.userenrollment.userservice.event.UserRegisteredEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
@@ -16,18 +17,16 @@ public class UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
-    @Value("${app.rabbitmq.exchange}")
-    private String exchangeName;
+    public static final String USER_REGISTERED_TOPIC = "user-registered-topic";
 
-    @Value("${app.rabbitmq.routingkey}")
-    private String routingKey;
-
-    private final RabbitTemplate rabbitTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper;
 
-    public UserService(RabbitTemplate rabbitTemplate, UserRepository userRepository) {
-        this.rabbitTemplate = rabbitTemplate;
+    public UserService(RedisTemplate<String, String> redisTemplate, UserRepository userRepository, ObjectMapper objectMapper) {
+        this.redisTemplate = redisTemplate;
         this.userRepository = userRepository;
+        this.objectMapper = objectMapper;
     }
 
     public void registerUser(UserRequest request) {
@@ -46,7 +45,12 @@ public class UserService {
                 Instant.now()
         );
 
-        rabbitTemplate.convertAndSend(exchangeName, routingKey, event);
-        log.info("Published UserRegisteredEvent for user: {}", event.username());
+        try {
+            String eventJson = objectMapper.writeValueAsString(event);
+            redisTemplate.convertAndSend(USER_REGISTERED_TOPIC, eventJson);
+            log.info("Published UserRegisteredEvent to Redis topic '{}'", USER_REGISTERED_TOPIC);
+        } catch (Exception e) {
+            log.error("Error publishing UserRegisteredEvent to Redis", e);
+        }
     }
 }

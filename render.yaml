@@ -1,0 +1,116 @@
+services:
+  - type: pserv
+    name: learning-db
+    env: postgres
+    plan: free
+    initial_db:
+      name: learning_platform
+
+  # 2. Infrastructure: Redis for Messaging
+  - type: pserv
+    name: messaging-redis
+    env: redis
+    plan: free
+
+  - type: pserv
+    name: discovery-service
+    env: java
+    rootDir: ./discovery-service
+    envVars:
+      - key: SERVER_PORT
+        value: 8761
+    buildCommand: mvn clean install
+    startCommand: java -jar target/discovery-service-*.jar
+    healthCheckPath: /
+
+  # 4. Microservice: User Service
+  - type: pserv
+    name: user-service
+    env: java
+    rootDir: ./user-service
+    buildCommand: mvn clean install
+    startCommand: java -jar target/user-service-*.jar
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromService:
+          type: pserv
+          name: learning-db
+          property: connectionString
+      - key: SPRING_DATA_REDIS_URL
+        fromService:
+          type: pserv
+          name: messaging-redis
+          property: connectionString
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://discovery-service:8761/eureka
+
+  # 5. Microservice: Course Service
+  - type: pserv
+    name: course-service
+    env: java
+    rootDir: ./course-service
+    buildCommand: mvn clean install
+    startCommand: java -jar target/course-service-*.jar
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromService:
+          type: pserv
+          name: learning-db
+          property: connectionString
+      - key: SPRING_DATA_REDIS_URL
+        fromService:
+          type: pserv
+          name: messaging-redis
+          property: connectionString
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://discovery-service:8761/eureka
+
+  # 6. Microservice: Enrollment Service
+  - type: pserv
+    name: enrollment-service
+    env: java
+    rootDir: ./enrollment-service
+    buildCommand: mvn clean install
+    startCommand: java -jar target/enrollment-service-*.jar
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromService:
+          type: pserv
+          name: learning-db
+          property: connectionString
+      - key: SPRING_DATA_REDIS_URL
+        fromService:
+          type: pserv
+          name: messaging-redis
+          property: connectionString
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://discovery-service:8761/eureka
+
+  # 7. Microservice: Notification Service
+  - type: pserv
+    name: notification-service
+    env: java
+    rootDir: ./notification-service
+    buildCommand: mvn clean install
+    startCommand: java -jar target/notification-service-*.jar
+    envVars:
+      - key: SPRING_DATA_REDIS_URL
+        fromService:
+          type: pserv
+          name: messaging-redis
+          property: connectionString
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://discovery-service:8761/eureka
+
+  # 8. Microservice: API Gateway (The only public service)
+  - type: web
+    name: api-gateway
+    env: java
+    rootDir: ./api-gateway
+    buildCommand: mvn clean install
+    startCommand: java -jar target/api-gateway-*.jar
+    envVars:
+      - key: SERVER_PORT
+        value: 10000
+      - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        value: http://discovery-service:8761/eureka
