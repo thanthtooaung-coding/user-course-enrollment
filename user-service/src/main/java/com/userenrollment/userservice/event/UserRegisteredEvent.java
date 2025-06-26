@@ -1,4 +1,4 @@
-package com.ecommerce.userservice.event;
+package com.userenrollment.userservice.event;
 
 import java.io.Serializable;
 import java.time.Instant;

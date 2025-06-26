@@ -1,7 +1,7 @@
 package com.userenrollment.notificationservice.listener;
 
 import com.userenrollment.notificationservice.config.RabbitMQConfig;
-import com.userenrollment.notificationservice.event.UserCreatedEvent;
+import com.userenrollment.notificationservice.event.UserRegisteredEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -13,7 +13,7 @@ public class NotificationListener {
     private static final Logger log = LoggerFactory.getLogger(NotificationListener.class);
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
-    public void handleUserCreatedEvent(UserCreatedEvent event) {
+    public void handleUserCreatedEvent(UserRegisteredEvent event) {
         log.info("Received event: {}", event);
 
         log.info("Processing notification for new user ID: {}...", event.userId());
