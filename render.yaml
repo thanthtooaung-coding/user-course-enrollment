@@ -14,10 +14,9 @@ services:
   - type: pserv
     name: discovery-service
     env: docker
+    rootDir: ./discovery-service
     dockerfilePath: ./Dockerfile
-    buildCommand: mvn clean install -pl discovery-service -am
-    dockerBuildArgs:
-      JAR_FILE: discovery-service/target/discovery-service-*.jar
+    buildCommand: mvn clean install
     envVars:
       - key: SERVER_PORT
         value: 8761
@@ -26,10 +25,9 @@ services:
   - type: pserv
     name: user-service
     env: docker
+    rootDir: ./user-service
     dockerfilePath: ./Dockerfile
-    buildCommand: mvn clean install -pl user-service -am
-    dockerBuildArgs:
-      JAR_FILE: user-service/target/user-service-*.jar
+    buildCommand: mvn clean install
     envVars:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
@@ -52,10 +50,9 @@ services:
   - type: pserv
     name: course-service
     env: docker
+    rootDir: ./course-service
     dockerfilePath: ./Dockerfile
-    buildCommand: mvn clean install -pl course-service -am
-    dockerBuildArgs:
-      JAR_FILE: course-service/target/course-service-*.jar
+    buildCommand: mvn clean install
     envVars:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
@@ -78,10 +75,9 @@ services:
   - type: pserv
     name: enrollment-service
     env: docker
+    rootDir: ./enrollment-service
     dockerfilePath: ./Dockerfile
-    buildCommand: mvn clean install -pl enrollment-service -am
-    dockerBuildArgs:
-      JAR_FILE: enrollment-service/target/enrollment-service-*.jar
+    buildCommand: mvn clean install
     envVars:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
@@ -104,10 +100,9 @@ services:
   - type: pserv
     name: notification-service
     env: docker
+    rootDir: ./notification-service
     dockerfilePath: ./Dockerfile
-    buildCommand: mvn clean install -pl notification-service -am
-    dockerBuildArgs:
-      JAR_FILE: notification-service/target/notification-service-*.jar
+    buildCommand: mvn clean install
     envVars:
       - key: SPRING_DATA_REDIS_HOST
         fromService:
@@ -125,10 +120,10 @@ services:
   # 7. Microservice: API Gateway (The only public service)
   - type: web
     name: api-gateway
-    env: java
+    env: docker
     rootDir: ./api-gateway
+    dockerfilePath: ./Dockerfile
     buildCommand: mvn clean install
-    startCommand: java -jar target/api-gateway-*.jar
     healthCheckPath: /actuator/health
     envVars:
       - key: SERVER_PORT
