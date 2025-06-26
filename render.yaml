@@ -13,11 +13,11 @@ services:
   # 2. Microservice: Discovery Service (Eureka)
   - type: pserv
     name: discovery-service
-    env: java
-    rootDir: ./discovery-service
-    buildCommand: mvn clean install
-    startCommand: java -jar target/discovery-service-*.jar
-    healthCheckPath: /
+    env: docker
+    dockerfilePath: ./Dockerfile
+    buildCommand: mvn clean install -pl discovery-service -am
+    dockerBuildArgs:
+      JAR_FILE: discovery-service/target/discovery-service-*.jar
     envVars:
       - key: SERVER_PORT
         value: 8761
@@ -25,76 +25,100 @@ services:
   # 3. Microservice: User Service
   - type: pserv
     name: user-service
-    env: java
-    rootDir: ./user-service
-    buildCommand: mvn clean install
-    startCommand: java -jar target/user-service-*.jar
+    env: docker
+    dockerfilePath: ./Dockerfile
+    buildCommand: mvn clean install -pl user-service -am
+    dockerBuildArgs:
+      JAR_FILE: user-service/target/user-service-*.jar
     envVars:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: learning-db
           property: connectionString
-      - key: SPRING_DATA_REDIS_URL
+      - key: SPRING_DATA_REDIS_HOST
         fromService:
           type: pserv
           name: messaging-redis
-          property: connectionString
+          property: host
+      - key: SPRING_DATA_REDIS_PORT
+        fromService:
+          type: pserv
+          name: messaging-redis
+          property: port
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://discovery-service:8761/eureka
 
   # 4. Microservice: Course Service
   - type: pserv
     name: course-service
-    env: java
-    rootDir: ./course-service
-    buildCommand: mvn clean install
-    startCommand: java -jar target/course-service-*.jar
+    env: docker
+    dockerfilePath: ./Dockerfile
+    buildCommand: mvn clean install -pl course-service -am
+    dockerBuildArgs:
+      JAR_FILE: course-service/target/course-service-*.jar
     envVars:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: learning-db
           property: connectionString
-      - key: SPRING_DATA_REDIS_URL
+      - key: SPRING_DATA_REDIS_HOST
         fromService:
           type: pserv
           name: messaging-redis
-          property: connectionString
+          property: host
+      - key: SPRING_DATA_REDIS_PORT
+        fromService:
+          type: pserv
+          name: messaging-redis
+          property: port
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://discovery-service:8761/eureka
 
   # 5. Microservice: Enrollment Service
   - type: pserv
     name: enrollment-service
-    env: java
-    rootDir: ./enrollment-service
-    buildCommand: mvn clean install
-    startCommand: java -jar target/enrollment-service-*.jar
+    env: docker
+    dockerfilePath: ./Dockerfile
+    buildCommand: mvn clean install -pl enrollment-service -am
+    dockerBuildArgs:
+      JAR_FILE: enrollment-service/target/enrollment-service-*.jar
     envVars:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
           name: learning-db
           property: connectionString
-      - key: SPRING_DATA_REDIS_URL
+      - key: SPRING_DATA_REDIS_HOST
         fromService:
           type: pserv
           name: messaging-redis
-          property: connectionString
+          property: host
+      - key: SPRING_DATA_REDIS_PORT
+        fromService:
+          type: pserv
+          name: messaging-redis
+          property: port
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://discovery-service:8761/eureka
 
   # 6. Microservice: Notification Service
   - type: pserv
     name: notification-service
-    env: java
-    rootDir: ./notification-service
-    buildCommand: mvn clean install
-    startCommand: java -jar target/notification-service-*.jar
+    env: docker
+    dockerfilePath: ./Dockerfile
+    buildCommand: mvn clean install -pl notification-service -am
+    dockerBuildArgs:
+      JAR_FILE: notification-service/target/notification-service-*.jar
     envVars:
-      - key: SPRING_DATA_REDIS_URL
+      - key: SPRING_DATA_REDIS_HOST
         fromService:
           type: pserv
           name: messaging-redis
-          property: connectionString
+          property: host
+      - key: SPRING_DATA_REDIS_PORT
+        fromService:
+          type: pserv
+          name: messaging-redis
+          property: port
       - key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
         value: http://discovery-service:8761/eureka
 
@@ -105,6 +129,7 @@ services:
     rootDir: ./api-gateway
     buildCommand: mvn clean install
     startCommand: java -jar target/api-gateway-*.jar
+    healthCheckPath: /actuator/health
     envVars:
       - key: SERVER_PORT
         value: 10000
