@@ -25,7 +25,7 @@
         <module>discovery-service</module>
         <module>user-service</module>
         <module>course-service</module>
-<!--        <module>enrollment-service</module>-->
+        <module>enrollment-service</module>
         <module>notification-service</module>
         <module>api-gateway</module>
     </modules>
