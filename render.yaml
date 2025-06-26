@@ -8,6 +8,9 @@ services:
   - type: redis
     name: messaging-redis
     plan: free
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: "Allow all traffic"
 
   # 2. Microservice: Discovery Service (Eureka)
   - type: pserv
