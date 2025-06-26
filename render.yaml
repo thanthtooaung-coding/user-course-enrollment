@@ -5,9 +5,8 @@ databases:
 
 services:
   # 1. Infrastructure: Redis for Messaging (as a Private Service)
-  - type: pserv
+  - type: redis
     name: messaging-redis
-    runtime: redis
     plan: free
 
   # 2. Microservice: Discovery Service (Eureka)
