@@ -179,33 +179,36 @@ Open a new terminal for each service and run them in the following order.
 
 All requests should be sent to the **API Gateway** on port `8080`.
 
-### 1\. Register a New User
+### User Service (`/api/users`)
 
-  - **Method:** `POST`
-  - **URL:** `http://localhost:8080/api/users/register`
-  - **Body (raw, JSON):**
-    ```json
-    {
-        "username": "vinn.dev",
-        "email": "vinn.dev@example.com",
-        "password": "securepassword123"
-    }
-    ```
+| Method | Path | Description |
+| :--- | :--- | :--- |
+| `POST` | `/` | Registers a new user. |
+| `GET` | `/` | Retrieves a list of all users. |
+| `GET` | `/{id}` | Retrieves a single user by their UUID. |
+| `PUT` | `/{id}` | Updates an existing user's details. |
+| `DELETE`| `/{id}` | Deletes a user. |
 
-### 2\. Create a New Course
+### Course Service (`/api/courses`)
 
-  - **Method:** `POST`
-  - **URL:** `http://localhost:8080/api/courses`
-  - **Body (raw, JSON):**
-    ```json
-    {
-        "title": "Advanced Microservices with Spring Boot",
-        "instructor": "Sir Vinn",
-        "price": 99.99
-    }
-    ```
+| Method | Path | Description |
+| :--- | :--- | :--- |
+| `POST` | `/` | Creates a new course. |
+| `GET` | `/` | Retrieves a list of all courses. |
+| `GET` | `/{id}` | Retrieves a single course by its UUID. |
+| `PUT` | `/{id}` | Updates an existing course's details. |
+| `DELETE`| `/{id}` | Deletes a course. |
 
-### 3\. Enroll a User in a Course
+### Enrollment Service (`/api/enrollments`)
+
+| Method | Path | Description |
+| :--- | :--- | :--- |
+| `POST` | `/` | Enrolls a user in a course. |
+| `GET` | `/{id}` | Retrieves a single enrollment record by its UUID. |
+| `GET` | `/user/{userId}` | Retrieves all enrollments for a specific user. |
+| `DELETE`| `/{id}` | Cancels (deletes) an enrollment. |
+
+### Example: Enrolling a User in a Course
 
 > **Note:** First, get the real `userId` and `courseId` from your MySQL database. You must query the database to get the correctly formatted UUID strings.
 >
@@ -216,12 +219,12 @@ All requests should be sent to the **API Gateway** on port `8080`.
 > SELECT BIN_TO_UUID(id) as uuid, title FROM courses_db.courses;
 > ```
 
-  - **Method:** `POST`
-  - **URL:** `http://localhost:8080/api/enrollments`
-  - **Body (raw, JSON):**
-    ```json
-    {
-        "userId": "YOUR_REAL_USER_ID_FROM_DB",
-        "courseId": "YOUR_REAL_COURSE_ID_FROM_DB"
-    }
-    ```
+- **Method:** `POST`
+- **URL:** `http://localhost:8080/api/enrollments`
+- **Body (raw, JSON):**
+  ```json
+  {
+      "userId": "YOUR_REAL_USER_ID_FROM_DB",
+      "courseId": "YOUR_REAL_COURSE_ID_FROM_DB"
+  }
+  ```
