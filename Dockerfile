@@ -24,13 +24,12 @@ RUN mvn clean install -DskipTests
 ARG JAR_FILE
 
 RUN find /app -name "$(basename ${JAR_FILE})" -exec mv {} /app/application.jar \;
+RUN find /app -name "*.jar" -exec mv {} /app/application.jar \;
 
 FROM eclipse-temurin:17-jre-jammy
 
-ARG JAR_FILE
-
 WORKDIR /opt/app
 
-COPY --from=builder /app/${JAR_FILE} app.jar
+COPY --from=builder /app/application.jar app.jar
 
 ENTRYPOINT ["java", "-Dspring.profiles.active=docker", "-jar", "app.jar"]
