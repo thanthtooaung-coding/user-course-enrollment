@@ -136,44 +136,29 @@ Navigate to the project root and use Maven to build all microservice modules.
 mvn clean install
 ```
 
-### Step 5: Run the Microservices
+### Step 5: Run the Application with Docker Compose
 
-Open a new terminal for each service and run them in the following order.
+Now, instead of running each service manually, you can start the entire stack with a single command from the project root.
 
-1.  **Start Discovery Service (Required First)**
+```bash
+docker compose up --build
+```
 
-    ```bash
-    java -jar discovery-service/target/discovery-service-*.jar
-    ```
+This command will:
 
-    *Wait for it to start, then check the Eureka dashboard at `http://localhost:8761`.*
+1.  Build a Docker image for each of your six microservices.
+2.  Start containers for MySQL and RabbitMQ.
+3.  Automatically run the `init.sql` script to set up the databases.
+4.  Start all six microservice containers in the correct order based on their dependencies.
 
-2.  **Start Business and Worker Services** (Order between these doesn't matter)
+### Verifying the Setup
 
-    ```bash
-    # In a new terminal
-    java -jar user-service/target/user-service-*.jar
+Once all containers are running, you can access the following services:
 
-    # In another new terminal
-    java -jar course-service/target/course-service-*.jar
-
-    # In another new terminal
-    java -jar enrollment-service/target/enrollment-service-*.jar
-
-    # In another new terminal
-    java -jar notification-service/target/notification-service-*.jar
-    ```
-
-    *Refresh the Eureka dashboard to see the services appear.*
-
-3.  **Start the API Gateway (Required Last)**
-
-    ```bash
-    # In a final terminal
-    java -jar api-gateway/target/api-gateway-*.jar
-    ```
-
-    *All services should now be running and registered with Eureka.*
+  - **API Gateway:** `http://localhost:8080` (All API requests go here)
+  - **Eureka Dashboard:** `http://localhost:8761` (To see registered services)
+  - **RabbitMQ Management UI:** `http://localhost:15672` (user: `guest`, pass: `guest`)
+  - **MySQL Database:** Connect using a client on `localhost` at port `3307`.
 
 ## API Endpoints
 
